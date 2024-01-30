@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Football app 
+
+
+Resources:
+  GraphqlApi:
+    Type: AWS::Serverless::Application
+    Properties:
+         Location: ./graphql/template.yaml
+  Cognito:
+    Type: AWS::Serverless::Application
+    Properties:
+         Location: ./auth/template.yaml
