@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: AWS CloudFormation Template for an AWS Cognito User Pool
 Resources:
   UserPool:
@@ -29,5 +29,4 @@ Outputs:
     Value: !Ref UserPool
   UserPoolClientId:
     Description: ID of the created Cognito User Pool Client
-    Value: !Ref UserPoolClient      
-  
+    Value: !Ref UserPoolClient

@@ -1,0 +1,25 @@
+type SignUpResponse {
+  token: String!
+}
+
+type User {
+  email: String!
+}
+
+input UserSignUpInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  addUser(input: UserSignUpInput): SignUpResponse
+}
+
+type Query {
+  getUser: [User]
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

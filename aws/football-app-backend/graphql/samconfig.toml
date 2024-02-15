@@ -14,7 +14,7 @@ parallel = true
 lint = true
 
 [default.deploy.parameters]
-capabilities = "CAPABILITY_IAM"
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
 confirm_changeset = true
 resolve_s3 = true
 
@@ -29,3 +29,5 @@ warm_containers = "EAGER"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
+
+region = "eu-north-1"

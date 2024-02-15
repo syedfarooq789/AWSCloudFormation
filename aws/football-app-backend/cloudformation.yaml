@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform:
+- AWS::Serverless-2016-10-31
+Description: 'Football app
+
+  '
+Parameters:
+  AppSyncApiName:
+    Type: String
+    Default: MyGraphQLApi
+    Description: My graphql api
+Resources:
+  Cognito:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: https://s3.eu-north-1.amazonaws.com/football-app-bucket/8afa290a9bc070cba02d25d4cb540b40.template
+    Metadata:
+      SamResourceId: Cognito
+  GraphqlApi:
+    DependsOn: Cognito
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: https://s3.eu-north-1.amazonaws.com/football-app-bucket/3adba1452e60ee0a67b1127d3fc1824b.template
+      Parameters:
+        UserPoolId:
+          Fn::GetAtt:
+          - Cognito
+          - Outputs.UserPoolId
+        AppSyncApiName:
+          Ref: AppSyncApiName
+    Metadata:
+      SamResourceId: GraphqlApi

@@ -1,0 +1,12 @@
+{
+  "name": "FootballApp",
+  "version": "1.0.0",
+  "description": "hello world sample for NodeJS",
+  "main": "index.js",
+  "author": "Farooq",
+  "license": "MIT",
+  "scripts": {
+    "package": "sam.cmd package --template ./template.yaml --output-template-file ./cloudformation.yaml --s3-bucket football-app-bucket --region eu-north-1 --profile Farooq",
+    "deploy": "sam.cmd deploy --template-file ./cloudformation.yaml --stack-name football-app-stack --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --region eu-north-1 --profile Farooq"
+  }
+}

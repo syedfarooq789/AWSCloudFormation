@@ -1,7 +1,90 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   graphql
 
   Sample SAM Template for graphql
-  
+
+Parameters:
+  AppSyncApiName:
+    Type: String
+    Default: MyGraphQLApi
+    Description: Adds the user to the cognito pool
+  UserPoolId:
+    Type: String
+    Description: User pool id
+
+Globals:
+  Function:
+    Timeout: 5
+    Runtime: nodejs20.x
+    Handler: index.handler
+    Tracing: Active
+
+Resources:
+  # Roles
+  AppSyncServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: AppSyncServiceRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: lambda:invokeFunction
+                Resource:
+                  - !Sub "arn:aws:lambda:${AWS::Region}:*:*"
+    #Lambda function
+  AddUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: saveUser
+      CodeUri: ./resolvers/saveUser
+    #Data sources
+  AddUserDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      Name: AddUserDataSource
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt AppSyncServiceRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt AddUserFunction.Arn
+    #Resolvers
+  AddUserResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      FieldName: addUser
+      TypeName: Mutation
+      DataSourceName: !GetAtt AddUserDataSource.Name
+      RequestMappingTemplate: '{ "version" : "2017-02-28", "operation": "Invoke", "payload": { "arguments": $util.toJson($context.arguments), "identity": $util.toJson($context.identity) } }'
+      ResponseMappingTemplate: $util.toJson($ctx.result)
+    #Apis
+  GraphQLApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Ref AppSyncApiName
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      UserPoolConfig:
+        UserPoolId: !Ref UserPoolId
+        AwsRegion: !Sub "${AWS::Region}"
+        DefaultAction: ALLOW
+  GraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLApi.ApiId
+      DefinitionS3Location: "./schema.graphql"
+Outputs:
+  ApiUrl:
+    Description: "The GraphQL endpoint"
+    Value: !GetAtt GraphQLApi.GraphQLUrl

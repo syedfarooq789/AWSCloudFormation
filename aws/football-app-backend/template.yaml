@@ -1,15 +1,25 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AWS::Serverless-2016-10-31
 Description: >
-  Football app 
-
-
+  Football app
+Parameters:
+  AppSyncApiName:
+    Type: String
+    Default: MyGraphQLApi
+    Description: My graphql api
 Resources:
-  GraphqlApi:
-    Type: AWS::Serverless::Application
-    Properties:
-         Location: ./graphql/template.yaml
   Cognito:
     Type: AWS::Serverless::Application
     Properties:
-         Location: ./auth/template.yaml
+      Location: ./auth/template.yaml
+  GraphqlApi:
+    DependsOn: Cognito
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./graphql/template.yaml
+      Parameters:
+        UserPoolId: !GetAtt Cognito.Outputs.UserPoolId
+        AppSyncApiName: !Ref AppSyncApiName
+   Database:
+    Type: AWS::Serverless::Application
